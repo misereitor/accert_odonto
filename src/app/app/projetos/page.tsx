@@ -5,7 +5,7 @@ import { styled } from '@mui/material/styles';
 import { useState } from 'react';
 import ListProjetos from '@/components/projetos/list-projetos';
 import ModalUploadProjeto from '@/components/modal/ModalModel';
-import ModalUploadFile from './modal-upload-file';
+import ModalUploadFile from '../../../components/projetos/modal-upload-file';
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -34,8 +34,12 @@ export default function Home() {
 
   return (
     <div className="w-full h-full">
-      <ModalUploadProjeto openModal={openModal} setOpenModal={setOpenModal}>
-        <ModalUploadFile file={file} />
+      <ModalUploadProjeto
+        height={'full'}
+        openModal={openModal}
+        setOpenModal={setOpenModal}
+      >
+        <ModalUploadFile setOpenModal={setOpenModal} file={file} />
       </ModalUploadProjeto>
       <div className="h-full ">
         <div className="border-b pb-2 flex justify-end">

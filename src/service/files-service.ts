@@ -28,7 +28,6 @@ export const generateSignedUrl = async (fileType: string) => {
 
     // Combinar com o domínio base para obter a URL completa
     const fullUrl = `https://objectstorage.sa-saopaulo-1.oraclecloud.com${accessUri}`;
-
     return {
       signedUrl: fullUrl,
       filePath: objectName
@@ -39,10 +38,38 @@ export const generateSignedUrl = async (fileType: string) => {
   }
 };
 
+export const generateSignedDownloadUrls = async (filePath: string) => {
+  try {
+    const { objectStorageClient, bucketName } = createStorageClient();
+    const namespace = await objectStorageClient.getNamespace({});
+    const namespaceName = namespace.value;
+
+    const preSignedUrl =
+      await objectStorageClient.createPreauthenticatedRequest({
+        namespaceName,
+        bucketName,
+        createPreauthenticatedRequestDetails: {
+          name: `download-${Date.now()}`,
+          objectName: filePath,
+          accessType:
+            models.CreatePreauthenticatedRequestDetails.AccessType.ObjectRead,
+          timeExpires: new Date(Date.now() + 3600 * 24000)
+        }
+      });
+
+    const fullUrl = `https://objectstorage.sa-saopaulo-1.oraclecloud.com${preSignedUrl.preauthenticatedRequest.accessUri}`;
+
+    return fullUrl;
+  } catch (error) {
+    console.error('Erro ao gerar URLs de download:', error);
+    throw error;
+  }
+};
+
 const getPathFileByUser = async (typeFile: string) => {
   const user = await getUserByToken();
   const fileNameRandon = `${randString(30, ['a', 'z'], ['A', 'Z'], ['0', '0'])}.${typeFile}`;
 
-  const path = `accertodonto/${user.name}/${fileNameRandon}`;
+  const path = `accertodonto/${user.email}/${fileNameRandon}`;
   return { path, fileNameRandon };
 };

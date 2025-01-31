@@ -22,20 +22,40 @@ model users {
   email_confirmed Boolean @default(false)
   active Boolean @default(true)
   posts posts[]
+  logos logos[]
+}
+
+model logos {
+  id Int @id @default(autoincrement())
+  user_id Int
+  user users @relation(fields: [user_id], references: [id])
+  path String
+  name_unique String
+  name String
+  size Int
+  width Int
+  height Int
 }
 
 model posts {
   id Int @id @default(autoincrement())
-  path String @unique
-  name_unique String @unique
+  path String
+  url String?
+  timestampUrl DateTime?
+  name_unique String
   name String
   size Int
-  filter String
+  filter String[]
   description String?
   active Boolean
-  user_id Int
   width Int
   height Int
   type Int
+  accept_logo Boolean
+  square_x Int @default(0)
+  square_y Int @default(0)
+  square_width Int @default(0)
+  square_height Int @default(0)
+  user_id Int
   user users @relation(fields: [user_id], references: [id])
 }

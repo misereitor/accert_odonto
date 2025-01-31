@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "posts" ADD COLUMN     "square_height" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "square_width" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "square_x" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "square_y" INTEGER NOT NULL DEFAULT 0;
