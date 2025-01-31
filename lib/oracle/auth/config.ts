@@ -23,8 +23,15 @@ export const createStorageClient = () => {
     );
   }
 
+  const privateKeyOracle = Buffer.from(
+    ORACLE_PRIVATE_KEY_PATH,
+    'base64'
+  ).toString('utf-8');
+  const privateKeyPathOracle = '/tmp/oracle_private_key.pem';
+  fs.writeFileSync(privateKeyPathOracle, privateKeyOracle);
+
   // Carrega a chave privada
-  const privateKeyPath = path.resolve(process.cwd(), ORACLE_PRIVATE_KEY_PATH);
+  const privateKeyPath = path.resolve(process.cwd(), privateKeyPathOracle);
   if (!fs.existsSync(privateKeyPath)) {
     throw new Error(
       `Arquivo de chave privada não encontrado: ${privateKeyPath}`
