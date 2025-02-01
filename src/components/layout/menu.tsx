@@ -126,6 +126,22 @@ export const menu = {
           size={24}
         />
       ]
+    },
+    {
+      title: 'Marca',
+      path: '/app/marca',
+      icon: [
+        <BiRegistered
+          key="planos"
+          className="text-[var(--button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />,
+        <BiSolidRegistered
+          key="planos"
+          className="text-[var(--secondary-button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />
+      ]
     }
   ]
 };
