@@ -36,6 +36,7 @@ export default function Home() {
     <div className="w-full h-full">
       <ModalUploadProjeto
         height={'full'}
+        width={'700px'}
         openModal={openModal}
         setOpenModal={setOpenModal}
       >

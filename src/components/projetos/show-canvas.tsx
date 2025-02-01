@@ -6,7 +6,7 @@ import {
   useEffect,
   useState
 } from 'react';
-import { resizeImage } from '../../../util/resize-image-proportionally';
+import { resizeImageByFile } from '../../../util/resize-image-proportionally';
 
 type Props = {
   setStage: Dispatch<SetStateAction<number>>;
@@ -57,10 +57,8 @@ export default function ShowCanvas({
     const handleFileShowCanva = async (file: File) => {
       if (!containerRef.current) return;
       const containerWidth = containerRef.current.offsetWidth;
-      const { imageResize, sizeImageResize, sizeImage } = await resizeImage(
-        file,
-        containerWidth
-      );
+      const { imageResize, sizeImageResize, sizeImage } =
+        await resizeImageByFile(file, containerWidth);
       if (!imageResize || !sizeImageResize || !sizeImage) return;
       setSizeImage(sizeImage);
       setScalePercentage(sizeImageResize.scalePercentage);
