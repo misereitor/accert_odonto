@@ -97,7 +97,6 @@ export default function RegisterImage({
           url: await generateSignedDownloadUrls(urlOracle.filePath.path),
           timestampUrl: nowPlusOneDay
         };
-        console.log(post);
         await savePostService(post);
         setOpenModal(false);
       }

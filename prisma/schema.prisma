@@ -32,9 +32,8 @@ model logos {
   path String
   name_unique String
   name String
-  size Int
-  width Int
-  height Int
+  url String?
+  timestampUrl DateTime?
 }
 
 model posts {
