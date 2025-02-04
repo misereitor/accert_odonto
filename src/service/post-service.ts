@@ -2,10 +2,12 @@
 import {
   getAllPostsByDesignRepository,
   getAllPostsByPaginationRepository,
-  savePostRepository
+  savePostRepository,
+  updateUrlPostRepository
 } from '@/repository/post-repository';
 import { posts } from '@prisma/client';
 import { getUserByToken } from './user-service';
+import { generateSignedDownloadUrls } from './files-service';
 
 export const savePostService = async (post: posts) => {
   try {
@@ -28,10 +30,26 @@ export const getAllPostsByPaginationService = async (
   type_media: number,
   type_post_ids: number[]
 ) => {
-  return await getAllPostsByPaginationRepository(
+  const now = new Date();
+  const nowPlusOneDay = new Date(now.getTime() + 60 * 60 * 24000);
+
+  const posts = await getAllPostsByPaginationRepository(
     skip,
     take,
     type_media,
     type_post_ids
   );
+
+  const updatedPhotos = await Promise.all(
+    posts.map(async (post) => {
+      if (!post.url || (post.timestampUrl && post.timestampUrl < now)) {
+        post.url = await generateSignedDownloadUrls(post.path);
+        post.timestampUrl = nowPlusOneDay;
+        await updateUrlPostRepository(post.id, post.url, post.timestampUrl);
+      }
+      return post;
+    })
+  );
+
+  return updatedPhotos;
 };

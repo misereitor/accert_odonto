@@ -35,3 +35,21 @@ export const getAllLogoByUserIdRepository = async (user_id: number) => {
     throw error;
   }
 };
+
+export const updateUrlLogoRepository = async (
+  id: number,
+  url: string,
+  timestampUrl: Date
+) => {
+  try {
+    await prisma.logos.update({
+      where: { id },
+      data: {
+        url,
+        timestampUrl
+      }
+    });
+  } catch (error: unknown) {
+    throw error;
+  }
+};

@@ -3,8 +3,6 @@
 import ModalModel from '@/components/modal/ModalModel';
 import ListVideoPlay from '@/components/video/list-video';
 import ModalDownloadVideo from '@/components/video/modal-download-video';
-import { updateUrlPostRepository } from '@/repository/post-repository';
-import { generateSignedDownloadUrls } from '@/service/files-service';
 import { getAllPostsByPaginationService } from '@/service/post-service';
 import { Skeleton, useMediaQuery, useTheme } from '@mui/material';
 import { posts } from '@prisma/client';
@@ -30,27 +28,8 @@ export default function Reels() {
       const newPhotos = await getAllPostsByPaginationService(spik, take, 1, [
         7
       ]);
-      const now = new Date();
-      const nowPlusOneDay = new Date(now.getTime() + 60 * 60 * 24000);
 
-      const updatedPhotos = await Promise.all(
-        newPhotos.map(async (post) => {
-          if (!post.url || (post.timestampUrl && post.timestampUrl < now)) {
-            post.url = await generateSignedDownloadUrls(post.path);
-            post.timestampUrl = nowPlusOneDay;
-            await updateUrlPostRepository(post.id, post.url, post.timestampUrl);
-          }
-          return post;
-        })
-      );
-
-      setPosts((prev) => {
-        const existingIds = new Set(prev.map((p) => p.id));
-        const uniquePosts = updatedPhotos.filter(
-          (post) => !existingIds.has(post.id)
-        );
-        return [...prev, ...uniquePosts];
-      });
+      setPosts(newPhotos);
 
       setSpik((prevSpik) => prevSpik + take);
       setHasMore(newPhotos.length > 0);
