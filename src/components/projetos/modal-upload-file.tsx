@@ -3,6 +3,7 @@
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import ShowCanvas from './show-canvas';
 import RegisterImage from './register-image';
+import ShowVideo from './show-video';
 
 type Props = {
   file: File | undefined;
@@ -26,20 +27,32 @@ export default function ModalUploadFile({ file, setOpenModal }: Props) {
     height: number;
   } | null>(null);
 
+  const mediaType = file?.type.split('/')[0] === 'image' ? true : false;
+
   return (
     <div>
       {stage == 0 && (
-        <ShowCanvas
-          setScalePercentage={setScalePercentage}
-          file={file}
-          setSizeImage={setSizeImage}
-          rect={rect}
-          setStage={setStage}
-          setRect={setRect}
-          imageRef={imageRef}
-          canvasRef={canvasRef}
-          containerRef={containerRef}
-        />
+        <div>
+          {mediaType ? (
+            <ShowCanvas
+              setScalePercentage={setScalePercentage}
+              file={file}
+              setSizeImage={setSizeImage}
+              rect={rect}
+              setStage={setStage}
+              setRect={setRect}
+              imageRef={imageRef}
+              canvasRef={canvasRef}
+              containerRef={containerRef}
+            />
+          ) : (
+            <ShowVideo
+              setSizeImage={setSizeImage}
+              setStage={setStage}
+              file={file}
+            />
+          )}
+        </div>
       )}
       {stage == 1 && (
         <RegisterImage

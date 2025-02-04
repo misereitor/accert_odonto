@@ -21,7 +21,7 @@ const VisuallyHiddenInput = styled('input')({
   width: 1
 });
 
-export default function Home() {
+export default function Marca() {
   const [logos, setLogos] = useState<logos[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const [file, setFile] = useState<File | undefined>();
@@ -47,12 +47,7 @@ export default function Home() {
   return (
     <div>
       <div>
-        <ModalModel
-          openModal={openModal}
-          setOpenModal={setOpenModal}
-          height={'full'}
-          width={'450px'}
-        >
+        <ModalModel openModal={openModal} setOpenModal={setOpenModal}>
           <ModalInsertLogo file={file} setOpenModal={setOpenModal} />
         </ModalModel>
       </div>

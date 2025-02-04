@@ -24,7 +24,14 @@ export const getAllPostsByDesignService = async () => {
 
 export const getAllPostsByPaginationService = async (
   skip: number,
-  take: number
+  take: number,
+  type_media: number,
+  type_post_ids: number[]
 ) => {
-  return await getAllPostsByPaginationRepository(skip, take);
+  return await getAllPostsByPaginationRepository(
+    skip,
+    take,
+    type_media,
+    type_post_ids
+  );
 };

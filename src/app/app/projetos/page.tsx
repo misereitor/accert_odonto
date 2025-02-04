@@ -19,13 +19,30 @@ const VisuallyHiddenInput = styled('input')({
   width: 1
 });
 
-export default function Home() {
+export default function Projetos() {
   const [openModal, setOpenModal] = useState(false);
   const [file, setFile] = useState<File | undefined>();
   const handleFileLoading = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     if (event.target.files && event.target.files[0]) {
+      const allowedTypes = [
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+        'image/gif',
+        'image/webp',
+        'video/mp4',
+        'video/webm'
+      ];
+      if (!allowedTypes.includes(event.target.files[0].type)) {
+        console.log('as');
+        alert(
+          `O arquivo ${event.target.files[0].name} não é um tipo permitido.`
+        );
+        event.target.value = '';
+        return;
+      }
       setFile(event.target.files[0]);
       setOpenModal(true);
     }
@@ -34,12 +51,7 @@ export default function Home() {
 
   return (
     <div className="w-full h-full">
-      <ModalUploadProjeto
-        height={'full'}
-        width={'700px'}
-        openModal={openModal}
-        setOpenModal={setOpenModal}
-      >
+      <ModalUploadProjeto openModal={openModal} setOpenModal={setOpenModal}>
         <ModalUploadFile setOpenModal={setOpenModal} file={file} />
       </ModalUploadProjeto>
       <div className="h-full ">
@@ -54,6 +66,7 @@ export default function Home() {
             Adicionar
             <VisuallyHiddenInput
               type="file"
+              accept="image/*,video/*"
               onChange={handleFileLoading}
               multiple
             />

@@ -6,79 +6,158 @@ import { updateUrlPostRepository } from '@/repository/post-repository';
 import { generateSignedDownloadUrls } from '@/service/files-service';
 import { getAllLogosByUserIdService } from '@/service/logo-service';
 import { getAllPostsByPaginationService } from '@/service/post-service';
+import { useTheme } from '@mui/material/styles';
+import {
+  ImageList,
+  ImageListItem,
+  Skeleton,
+  useMediaQuery
+} from '@mui/material';
 import { logos, posts } from '@prisma/client';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-export default function Home() {
+export default function Postes() {
   const [posts, setPosts] = useState<posts[]>([]);
   const [postSelect, setPostSelect] = useState<posts | null>(null);
   const [openModal, setOpenModal] = useState(false);
   const [logos, setLogos] = useState<logos[]>([]);
-  const [take, setTake] = useState(10);
-  const [spik, setSpike] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const take = 20;
+  const [spik, setSpik] = useState(0);
 
-  useEffect(() => {
-    const getPostsAndLogos = async () => {
-      const postsDB = await getAllPostsByPaginationService(spik, take);
+  const getCols = () => {
+    if (isMobile) return 2;
+    if (isTablet) return 3;
+    return 4;
+  };
+
+  const fetchPhotos = useCallback(async () => {
+    setLoading(true);
+    try {
+      // Substituir por sua chamada API real
+      const newPhotos = await getAllPostsByPaginationService(
+        spik,
+        take,
+        0,
+        [1, 2, 3, 4, 5]
+      );
       const logosDB = await getAllLogosByUserIdService();
+      setLogos(logosDB);
       const now = new Date();
       const nowPlusOneDay = new Date(now.getTime() + 60 * 60 * 24000);
+      await Promise.all(
+        newPhotos.map(async (post) => {
+          if (!post.url || (post.timestampUrl && post.timestampUrl < now)) {
+            post.url = await generateSignedDownloadUrls(post.path);
+            post.timestampUrl = nowPlusOneDay;
+            await updateUrlPostRepository(post.id, post.url, post.timestampUrl);
+          }
+          setPosts((prev) => [...prev, post]);
+        })
+      );
+      setSpik((prevSpik) => prevSpik + take);
+      setHasMore(newPhotos.length > 0);
+    } catch (error) {
+      console.error('Erro ao buscar posts:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [spik, take]);
 
-      postsDB.map(async (post) => {
-        if (!post.url || (post.timestampUrl && post.timestampUrl < now)) {
-          post.url = await generateSignedDownloadUrls(post.path);
-          post.timestampUrl = nowPlusOneDay;
-          await updateUrlPostRepository(post.id, post.url, post.timestampUrl);
-        }
-        return post;
-      });
-      setPosts([...posts, ...postsDB]);
-      setLogos(logosDB);
-    };
-    getPostsAndLogos();
+  useEffect(() => {
+    fetchPhotos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + window.scrollY >=
+          document.documentElement.scrollHeight - 300 &&
+        !loading &&
+        hasMore
+      ) {
+        fetchPhotos();
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [fetchPhotos, loading, hasMore]);
+
+  const getImageDimensions = (width: number, height: number) => {
+    const vertical = width > height;
+    const horizontal = height > width;
+    const squere = width === height;
+
+    if (squere) return { rows: 1, cols: 1 };
+    if (vertical) return { rows: 2, cols: 1 };
+    if (horizontal) return { rows: 1, cols: 2 };
+  };
 
   const handleSelectPost = (post: posts) => {
     setPostSelect(post);
     setOpenModal(true);
   };
+
   return (
-    <div>
-      <ModalModel
-        openModal={openModal}
-        setOpenModal={setOpenModal}
-        height={'full'}
-        width={'500px'}
-      >
+    <div className="p-4">
+      <ModalModel openModal={openModal} setOpenModal={setOpenModal}>
         <ModalDownloadPost
           setPostSelect={setPostSelect}
           postSelect={postSelect}
           logos={logos}
         />
       </ModalModel>
-      <div className="flex flex-wrap items-center justify-start">
-        {posts.map((post) => (
-          <div
-            key={post.id}
-            onClick={() => handleSelectPost(post)}
-            className="cursor-pointer w-1/3"
+      <ImageList variant="masonry" cols={getCols()} gap={16}>
+        {posts.map((photo) => (
+          <ImageListItem
+            key={photo.id}
+            sx={{
+              cursor: 'pointer',
+              borderRadius: '8px'
+            }}
+            onClick={() => handleSelectPost(photo)}
+            {...getImageDimensions(photo.width, photo.height)}
           >
-            <div className="m-2 transition-all duration-300 hover:m-0">
-              {post.url && (
-                <Image
-                  src={post.url}
-                  alt={post.name}
-                  width={500}
-                  height={500}
-                  className="rounded-2xl"
-                />
-              )}
-            </div>
-          </div>
+            {photo.url ? (
+              <Image
+                src={photo.url}
+                alt="Gallery item"
+                loading="lazy"
+                width={500}
+                height={500}
+                className="rounded-lg"
+              />
+            ) : (
+              <Skeleton
+                variant="rectangular"
+                width="100%"
+                height={200}
+                sx={{ borderRadius: 2 }}
+              />
+            )}
+          </ImageListItem>
         ))}
-      </div>
+
+        {/* Skeletons durante o carregamento */}
+        {loading &&
+          Array.from(new Array(getCols() * 2)).map((_, index) => (
+            <ImageListItem key={`skeleton-${index}`} cols={1} rows={1}>
+              <Skeleton
+                variant="rectangular"
+                width="100%"
+                height={200}
+                sx={{ borderRadius: 2 }}
+              />
+            </ImageListItem>
+          ))}
+      </ImageList>
     </div>
   );
 }

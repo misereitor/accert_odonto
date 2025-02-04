@@ -50,7 +50,11 @@ export default function Sidebar({
             >
               {user?.type === 1 &&
                 menu.user.map((item, index) => (
-                  <li key={index} className="py-2 pr-2 pl-2">
+                  <li
+                    key={index}
+                    className="py-2 pr-2 pl-2"
+                    onClick={() => setSidebarOpen(false)}
+                  >
                     <div
                       className={`${location == item.path && 'bg-slate-200'} flex items-center  rounded-lg hover:bg-gray-100 transition-colors duration-300`}
                     >
@@ -71,7 +75,11 @@ export default function Sidebar({
                 ))}
               {user?.type === 2 &&
                 menu.desing.map((item, index) => (
-                  <li key={index} className="py-2 pr-2 pl-2">
+                  <li
+                    key={index}
+                    className="py-2 pr-2 pl-2"
+                    onClick={() => setSidebarOpen(false)}
+                  >
                     <div
                       className={`${location == item.path && 'bg-slate-200'} flex items-center  rounded-lg hover:bg-gray-100 transition-colors duration-300`}
                     >

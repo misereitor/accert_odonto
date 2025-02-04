@@ -1,6 +1,21 @@
-import { Button, TextField } from '@mui/material';
-import { posts } from '@prisma/client';
-import { Dispatch, FormEvent, SetStateAction, useState } from 'react';
+import {
+  Button,
+  FormControl,
+  FormHelperText,
+  InputLabel,
+  LinearProgress,
+  MenuItem,
+  Select,
+  TextField
+} from '@mui/material';
+import { posts, type_post } from '@prisma/client';
+import {
+  Dispatch,
+  FormEvent,
+  SetStateAction,
+  useEffect,
+  useState
+} from 'react';
 import { IoCloseCircleOutline } from 'react-icons/io5';
 import { scaleRectangleByPercentage } from '../../../util/resize-image-proportionally';
 import {
@@ -8,8 +23,9 @@ import {
   generateSignedUrl
 } from '@/service/files-service';
 import { getUserByToken } from '@/service/user-service';
-import axios from 'axios';
+import axios, { AxiosProgressEvent } from 'axios';
 import { savePostService } from '@/service/post-service';
+import { getAllTypePostsRepository } from '@/repository/post-repository';
 
 type Props = {
   setStage: Dispatch<SetStateAction<number>>;
@@ -41,10 +57,48 @@ export default function RegisterImage({
   const [filter, setFilter] = useState('');
   const [filterArray, setFilterArray] = useState<string[]>([]);
   const [errorFilter, setErrorFilter] = useState('');
+  const [selectTypePost, setSelectTypePost] = useState<type_post[]>([]);
+  const [typePost, setTypePost] = useState('');
+  const [typeMedia, setTypeMedia] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [isUpload, setIsUpload] = useState(false);
+
+  useEffect(() => {
+    const typeMediaSet = () => {
+      if (!file) {
+        return 10;
+      }
+      const type = file.type.split('/')[0];
+      switch (type) {
+        case 'image':
+          return 0;
+        case 'video':
+          return 1;
+        default:
+          return 10;
+      }
+    };
+    setTypeMedia(typeMediaSet);
+    const tyoePosts = async () => {
+      const types = await getAllTypePostsRepository(typeMediaSet());
+      setSelectTypePost(types);
+    };
+    tyoePosts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (!file) {
+    return <>Arquivo não existe</>;
+  }
+
+  const handleProgressUpload = (progressEvent: AxiosProgressEvent) => {
+    const total = progressEvent.total ?? file.size;
+    const percentCompleted = Math.round((progressEvent.loaded * 100) / total);
+    setProgress(percentCompleted);
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!file) return;
     const user = await getUserByToken();
     const now = new Date();
     const nowPlusOneDay = new Date(now.getTime() + 60 * 60 * 24000);
@@ -67,13 +121,15 @@ export default function RegisterImage({
       );
     }
     try {
+      setIsUpload(true);
       const urlOracle = await generateSignedUrl(
         file.name.split('.')[file.name.split('.').length - 1]
       );
       const response = await axios.put(urlOracle.signedUrl, file, {
         headers: {
           'Content-Type': file.type
-        }
+        },
+        onUploadProgress: handleProgressUpload
       });
       if (response.status === 200) {
         const post: posts = {
@@ -88,7 +144,8 @@ export default function RegisterImage({
           user_id: user.id,
           width: sizeImage?.width || 0,
           height: sizeImage?.height || 0,
-          type: 0,
+          type_media: typeMedia,
+          type_post_id: typePost === '' ? 0 : Number(typePost),
           square_x: squereSize?.x || 0,
           square_y: squereSize?.y || 0,
           square_width: squereSize?.width || 0,
@@ -102,6 +159,8 @@ export default function RegisterImage({
       }
     } catch (error: unknown) {
       console.error('Erro ao salvar o arquivo', error);
+    } finally {
+      setIsUpload(false);
     }
   };
 
@@ -127,6 +186,8 @@ export default function RegisterImage({
       <form onSubmit={handleSubmit}>
         <div className="flex justify-between my-2">
           <Button
+            loading={isUpload}
+            loadingPosition="start"
             variant="contained"
             color="primary"
             type="button"
@@ -136,6 +197,8 @@ export default function RegisterImage({
           </Button>
 
           <Button
+            loading={isUpload}
+            loadingPosition="start"
             variant="contained"
             color="primary"
             type="submit"
@@ -144,29 +207,80 @@ export default function RegisterImage({
             Salvar
           </Button>
         </div>
+        <div className="my-4">
+          {isUpload && (
+            <LinearProgress variant="determinate" value={progress} />
+          )}
+        </div>
         <div className="w-full flex flex-col">
           <TextField
+            required
             id="outlined-basic"
             label="Nome"
             variant="outlined"
             value={name}
             type="text"
             onChange={(e) => setName(e.target.value)}
-            sx={{
-              marginBottom: 2
-            }}
           />
+          <FormHelperText
+            sx={{
+              marginBottom: 2,
+              marginLeft: 2
+            }}
+          >
+            Obrigatório
+          </FormHelperText>
           <TextField
+            required
             id="outlined-basic"
             label="Descrição"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             variant="outlined"
             type="text"
-            sx={{
-              marginBottom: 2
-            }}
           />
+          <FormHelperText
+            sx={{
+              marginBottom: 2,
+              marginLeft: 2
+            }}
+          >
+            Obrigatório
+          </FormHelperText>
+          <div>
+            <FormControl
+              required
+              sx={{
+                width: '100%'
+              }}
+            >
+              <InputLabel id="Type-post">Tipo</InputLabel>
+              <Select
+                labelId="Type-post"
+                id="Type-post-required"
+                value={typePost}
+                label="Tipo *"
+                onChange={(e) => setTypePost(e.target.value)}
+                sx={{
+                  width: '100%'
+                }}
+              >
+                {selectTypePost.map((type) => (
+                  <MenuItem key={type.id} value={type.id}>
+                    {type.type}
+                  </MenuItem>
+                ))}
+              </Select>
+              <FormHelperText
+                sx={{
+                  marginBottom: 2,
+                  marginLeft: 2
+                }}
+              >
+                Obrigatório
+              </FormHelperText>
+            </FormControl>
+          </div>
           <div className="flex justify-between w-full items-center">
             <TextField
               sx={{

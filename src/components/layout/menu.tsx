@@ -3,12 +3,16 @@ import {
   BiCalendarStar,
   BiChalkboard,
   BiHomeHeart,
+  BiMoviePlay,
   BiRegistered,
   BiSolidBookmarkHeart,
   BiSolidCalendarStar,
   BiSolidChalkboard,
   BiSolidHomeHeart,
-  BiSolidRegistered
+  BiSolidMoviePlay,
+  BiSolidRegistered,
+  BiSolidTv,
+  BiTv
 } from 'react-icons/bi';
 
 export const menu = {
@@ -55,6 +59,38 @@ export const menu = {
           size={24}
         />,
         <BiSolidCalendarStar
+          key="Clientes"
+          className="text-[var(--secondary-button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />
+      ]
+    },
+    {
+      title: 'Reels',
+      path: '/app/reels',
+      icon: [
+        <BiMoviePlay
+          key="Clientes"
+          className="text-[var(--button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />,
+        <BiSolidMoviePlay
+          key="Clientes"
+          className="text-[var(--secondary-button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />
+      ]
+    },
+    {
+      title: 'Videos TV',
+      path: '/app/videos-tv',
+      icon: [
+        <BiTv
+          key="Clientes"
+          className="text-[var(--button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />,
+        <BiSolidTv
           key="Clientes"
           className="text-[var(--secondary-button)] ml-3 group-hover:text-blue-500"
           size={24}
@@ -121,6 +157,38 @@ export const menu = {
           size={24}
         />,
         <BiSolidCalendarStar
+          key="Clientes"
+          className="text-[var(--secondary-button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />
+      ]
+    },
+    {
+      title: 'Reels',
+      path: '/app/reels',
+      icon: [
+        <BiMoviePlay
+          key="Clientes"
+          className="text-[var(--button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />,
+        <BiSolidMoviePlay
+          key="Clientes"
+          className="text-[var(--secondary-button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />
+      ]
+    },
+    {
+      title: 'Videos TV',
+      path: '/app/videos-tv',
+      icon: [
+        <BiTv
+          key="Clientes"
+          className="text-[var(--button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />,
+        <BiSolidTv
           key="Clientes"
           className="text-[var(--secondary-button)] ml-3 group-hover:text-blue-500"
           size={24}
