@@ -4,8 +4,13 @@ import { posts, PrismaClient, squares } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export const savePostRepository = async (post: posts, squares: squares[]) => {
+export const savePostRepository = async (
+  post: posts,
+  squares: squares[],
+  type_posts: number[]
+) => {
   try {
+    console.log(post, squares, type_posts);
     const savePost = await prisma.posts.create({
       data: {
         filter: post.filter,
@@ -18,12 +23,16 @@ export const savePostRepository = async (post: posts, squares: squares[]) => {
         name_unique: post.name_unique,
         height: post.height,
         type_media: post.type_media,
-        type_post_id: post.type_post_id,
         width: post.width,
         accept_information: post.accept_information,
         accept_logo: post.accept_logo,
         timestampUrl: post.timestampUrl,
         url: post.url,
+        type_posts: {
+          create: type_posts.map((tp) => ({
+            type_post: { connect: { id: tp } }
+          }))
+        },
         squares: {
           create: squares.map((sq) => ({
             type: sq.type,
@@ -35,7 +44,7 @@ export const savePostRepository = async (post: posts, squares: squares[]) => {
         }
       },
       include: {
-        type_post: true,
+        type_posts: true,
         squares: true
       }
     });
@@ -56,7 +65,7 @@ export const getAllPostsByDesignRepository = async (
       take,
       skip,
       include: {
-        type_post: true,
+        type_posts: true,
         squares: true
       }
     });
@@ -78,12 +87,16 @@ export const getAllPostsByPaginationRepository = async (
       skip,
       where: {
         type_media,
-        type_post_id: {
-          in: type_post_ids
+        type_posts: {
+          some: {
+            type_post_id: {
+              in: type_post_ids
+            }
+          }
         }
       },
       include: {
-        type_post: true,
+        type_posts: true,
         squares: true
       }
     });

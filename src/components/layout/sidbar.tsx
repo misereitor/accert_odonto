@@ -30,7 +30,7 @@ export default function Sidebar({
           onMouseEnter: () => setSidebarOpen(true)
         })}
         className={`${
-          sidebarOpen && 'w-60'
+          sidebarOpen && 'w-72'
         } ${!sidebarOpen && !isMobile && 'w-16'} 
         ${!sidebarOpen && isMobile && 'w-0'} w-0 fixed left-0 h-screen bg-white shadow-md transition-all duration-300 z-20 flex flex-col justify-between overflow-hidden`}
       >
@@ -38,9 +38,22 @@ export default function Sidebar({
           <div className="flex justify-center items-center h-16 border-b border-gray-200">
             <span className="text-xl font-bold">
               {sidebarOpen ? (
-                <Image src={'/logo.png'} width={115} height={35} alt="Logo" />
+                <Image
+                  src={'/logo.png'}
+                  width={115}
+                  height={52.55}
+                  alt="Logo"
+                  priority
+                />
               ) : (
-                <Image src={'/icone.png'} width={35} height={35} alt="Logo" />
+                <Image
+                  className="w-auto h-auto"
+                  src={'/icone.png'}
+                  width={30}
+                  height={30}
+                  alt="Logo"
+                  priority
+                />
               )}
             </span>
           </div>

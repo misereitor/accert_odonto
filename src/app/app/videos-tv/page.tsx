@@ -136,7 +136,7 @@ export default function VideosTv() {
             {video.url ? (
               <ListVideoPlay video={video} />
             ) : (
-              <Skeleton variant="rectangular" width="100%" height={200} />
+              <Skeleton variant="rectangular" width="100%" height={190} />
             )}
           </div>
         ))}
@@ -147,7 +147,10 @@ export default function VideosTv() {
               key={index}
               variant="rectangular"
               width="100%"
-              height={200}
+              height={190}
+              sx={{
+                borderRadius: 2
+              }}
             />
           ))}
       </div>

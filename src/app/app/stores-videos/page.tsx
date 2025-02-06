@@ -27,7 +27,7 @@ export default function Reels() {
     setLoading(true);
     try {
       const newPhotos = await getAllPostsByPaginationService(spik, take, 1, [
-        7
+        8
       ]);
 
       setPosts(newPhotos);

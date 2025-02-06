@@ -16,7 +16,7 @@ import Image from 'next/image';
 import { useCallback, useEffect, useState } from 'react';
 import { Posts } from '@/model/post-model';
 
-export default function Postes() {
+export default function Panfletos() {
   const [posts, setPosts] = useState<Posts[]>([]);
   const [postSelect, setPostSelect] = useState<Posts | null>(null);
   const [openModal, setOpenModal] = useState(false);
@@ -38,12 +38,9 @@ export default function Postes() {
   const fetchPhotos = useCallback(async () => {
     setLoading(true);
     try {
-      const newPhotos = await getAllPostsByPaginationService(
-        spik,
-        take,
-        0,
-        [1, 2, 3]
-      );
+      const newPhotos = await getAllPostsByPaginationService(spik, take, 0, [
+        4
+      ]);
       const logosDB = await getAllLogosByUserIdService();
       setLogos(logosDB);
 

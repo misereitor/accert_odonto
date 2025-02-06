@@ -1,11 +1,15 @@
 import {
   Button,
+  Checkbox,
   FormControl,
   FormHelperText,
   InputLabel,
   LinearProgress,
+  ListItemText,
   MenuItem,
+  OutlinedInput,
   Select,
+  SelectChangeEvent,
   TextField
 } from '@mui/material';
 import { posts, type_post } from '@prisma/client';
@@ -52,10 +56,10 @@ export default function RegisterImage({
   const [filterArray, setFilterArray] = useState<string[]>([]);
   const [errorFilter, setErrorFilter] = useState('');
   const [selectTypePost, setSelectTypePost] = useState<type_post[]>([]);
-  const [typePost, setTypePost] = useState('');
   const [typeMedia, setTypeMedia] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isUpload, setIsUpload] = useState(false);
+  const [typePosts, setTypePosts] = useState<string[]>([]);
 
   useEffect(() => {
     const typeMediaSet = () => {
@@ -127,13 +131,16 @@ export default function RegisterImage({
           width: sizeImage?.width || 0,
           height: sizeImage?.height || 0,
           type_media: typeMedia,
-          type_post_id: typePost === '' ? 0 : Number(typePost),
           accept_logo: rects.length > 0,
           url: await generateSignedDownloadUrls(urlOracle.filePath.path),
           timestampUrl: nowPlusOneDay,
           accept_information: rects.length > 0
         };
-        await savePostService(post, squereSize);
+        const ids = selectTypePost
+          .filter((stp) => typePosts.includes(stp.type))
+          .map((stp) => stp.id);
+
+        await savePostService(post, squereSize, ids);
         setOpenModal(false);
       }
     } catch (error: unknown) {
@@ -158,6 +165,16 @@ export default function RegisterImage({
   const handleRemoveFilter = (fill: string) => {
     const remove = filterArray.filter((f) => f != fill);
     setFilterArray(remove);
+  };
+
+  const handleChange = (event: SelectChangeEvent<typeof typePosts>) => {
+    const {
+      target: { value }
+    } = event;
+    setTypePosts(
+      // On autofill we get a stringified value.
+      typeof value === 'string' ? value.split(',') : value
+    );
   };
 
   return (
@@ -234,18 +251,22 @@ export default function RegisterImage({
             >
               <InputLabel id="Type-post">Tipo</InputLabel>
               <Select
+                multiple
                 labelId="Type-post"
                 id="Type-post-required"
-                value={typePost}
+                input={<OutlinedInput label="Tipo" />}
+                value={typePosts}
                 label="Tipo *"
-                onChange={(e) => setTypePost(e.target.value)}
+                renderValue={(selected) => selected.join(', ')}
+                onChange={handleChange}
                 sx={{
                   width: '100%'
                 }}
               >
                 {selectTypePost.map((type) => (
-                  <MenuItem key={type.id} value={type.id}>
-                    {type.type}
+                  <MenuItem key={type.id} value={type.type}>
+                    <Checkbox checked={typePosts.includes(`${type.type}`)} />
+                    <ListItemText primary={type.type} />
                   </MenuItem>
                 ))}
               </Select>

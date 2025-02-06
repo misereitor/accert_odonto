@@ -1,17 +1,27 @@
 import {
   BiBookmarkHeart,
-  BiCalendarStar,
+  BiCarousel,
   BiChalkboard,
+  BiDetail,
   BiHomeHeart,
+  BiImage,
+  BiMobile,
+  BiMobileAlt,
   BiMoviePlay,
+  BiNews,
   BiRegistered,
   BiSolidBookmarkHeart,
-  BiSolidCalendarStar,
+  BiSolidCarousel,
   BiSolidChalkboard,
+  BiSolidDetail,
   BiSolidHomeHeart,
+  BiSolidImage,
   BiSolidMoviePlay,
+  BiSolidNews,
   BiSolidRegistered,
+  BiSolidSticker,
   BiSolidTv,
+  BiSticker,
   BiTv
 } from 'react-icons/bi';
 
@@ -53,12 +63,109 @@ export const menu = {
       title: 'Postes',
       path: '/app/postes',
       icon: [
-        <BiCalendarStar
+        <BiImage
           key="Clientes"
           className="text-[var(--button)] ml-3 group-hover:text-blue-500"
           size={24}
         />,
-        <BiSolidCalendarStar
+        <BiSolidImage
+          key="Clientes"
+          className="text-[var(--secondary-button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />
+      ]
+    },
+
+    {
+      title: 'Panfletos',
+      path: '/app/panfletos',
+      icon: [
+        <BiDetail
+          key="Clientes"
+          className="text-[var(--button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />,
+        <BiSolidDetail
+          key="Clientes"
+          className="text-[var(--secondary-button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />
+      ]
+    },
+    {
+      title: 'Stores Fotos',
+      path: '/app/stores-fotos',
+      icon: [
+        <BiMobileAlt
+          key="Clientes"
+          className="text-[var(--button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />,
+        <BiMobile
+          key="Clientes"
+          className="text-[var(--secondary-button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />
+      ]
+    },
+    {
+      title: 'Stores Videos',
+      path: '/app/stores-videos',
+      icon: [
+        <BiMoviePlay
+          key="Clientes"
+          className="text-[var(--button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />,
+        <BiSolidMoviePlay
+          key="Clientes"
+          className="text-[var(--secondary-button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />
+      ]
+    },
+    {
+      title: 'Lâminas de Apresentação',
+      path: '/app/laminas-de-apresentacao',
+      icon: [
+        <BiNews
+          key="Clientes"
+          className="text-[var(--button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />,
+        <BiSolidNews
+          key="Clientes"
+          className="text-[var(--secondary-button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />
+      ]
+    },
+    {
+      title: 'Stickers (Figurinhas)',
+      path: '/app/stickers',
+      icon: [
+        <BiSticker
+          key="Clientes"
+          className="text-[var(--button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />,
+        <BiSolidSticker
+          key="Clientes"
+          className="text-[var(--secondary-button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />
+      ]
+    },
+    {
+      title: 'Folder',
+      path: '/app/folder',
+      icon: [
+        <BiCarousel
+          key="Clientes"
+          className="text-[var(--button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />,
+        <BiSolidCarousel
           key="Clientes"
           className="text-[var(--secondary-button)] ml-3 group-hover:text-blue-500"
           size={24}
@@ -151,12 +258,108 @@ export const menu = {
       title: 'Postes',
       path: '/app/postes',
       icon: [
-        <BiCalendarStar
+        <BiImage
           key="Clientes"
           className="text-[var(--button)] ml-3 group-hover:text-blue-500"
           size={24}
         />,
-        <BiSolidCalendarStar
+        <BiSolidImage
+          key="Clientes"
+          className="text-[var(--secondary-button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />
+      ]
+    },
+    {
+      title: 'Panfletos',
+      path: '/app/panfletos',
+      icon: [
+        <BiDetail
+          key="Clientes"
+          className="text-[var(--button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />,
+        <BiSolidDetail
+          key="Clientes"
+          className="text-[var(--secondary-button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />
+      ]
+    },
+    {
+      title: 'Stores Fotos',
+      path: '/app/stores-fotos',
+      icon: [
+        <BiMobileAlt
+          key="Clientes"
+          className="text-[var(--button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />,
+        <BiMobile
+          key="Clientes"
+          className="text-[var(--secondary-button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />
+      ]
+    },
+    {
+      title: 'Stores Videos',
+      path: '/app/stores-videos',
+      icon: [
+        <BiMoviePlay
+          key="Clientes"
+          className="text-[var(--button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />,
+        <BiSolidMoviePlay
+          key="Clientes"
+          className="text-[var(--secondary-button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />
+      ]
+    },
+    {
+      title: 'Lâminas de Apresentação',
+      path: '/app/laminas-de-apresentacao',
+      icon: [
+        <BiNews
+          key="Clientes"
+          className="text-[var(--button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />,
+        <BiSolidNews
+          key="Clientes"
+          className="text-[var(--secondary-button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />
+      ]
+    },
+    {
+      title: 'Stickers (Figurinhas)',
+      path: '/app/stickers',
+      icon: [
+        <BiSticker
+          key="Clientes"
+          className="text-[var(--button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />,
+        <BiSolidSticker
+          key="Clientes"
+          className="text-[var(--secondary-button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />
+      ]
+    },
+    {
+      title: 'Folder',
+      path: '/app/folder',
+      icon: [
+        <BiCarousel
+          key="Clientes"
+          className="text-[var(--button)] ml-3 group-hover:text-blue-500"
+          size={24}
+        />,
+        <BiSolidCarousel
           key="Clientes"
           className="text-[var(--secondary-button)] ml-3 group-hover:text-blue-500"
           size={24}

@@ -51,14 +51,13 @@ model posts {
   active Boolean
   width Int
   height Int
-  type_post type_post @relation(fields: [type_post_id], references: [id])
-  type_post_id Int
   type_media Int //0 - img, 1 - video, 2 - figurinhas, 3 - gifs
   accept_logo Boolean
   accept_information Boolean
   user_id Int
   user users @relation(fields: [user_id], references: [id])
   squares squares[]
+  type_posts post_type_posts[]
 }
 
 model squares {
@@ -76,5 +75,15 @@ model type_post {
   id Int @id @default(autoincrement())
   type String
   type_media Int
-  posts posts[]
+  posts post_type_posts[]
+}
+
+model post_type_posts {
+  post_id Int
+  post posts @relation(fields: [post_id], references: [id])
+
+  type_post_id Int
+  type_post type_post @relation(fields: [type_post_id], references: [id])
+
+  @@id([post_id, type_post_id])
 }

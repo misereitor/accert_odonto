@@ -38,12 +38,9 @@ export default function Postes() {
   const fetchPhotos = useCallback(async () => {
     setLoading(true);
     try {
-      const newPhotos = await getAllPostsByPaginationService(
-        spik,
-        take,
-        0,
-        [1, 2, 3]
-      );
+      const newPhotos = await getAllPostsByPaginationService(spik, take, 0, [
+        11
+      ]);
       const logosDB = await getAllLogosByUserIdService();
       setLogos(logosDB);
 

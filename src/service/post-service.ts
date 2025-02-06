@@ -10,10 +10,13 @@ import { getUserByToken } from './user-service';
 import { generateSignedDownloadUrls } from './files-service';
 import { Posts } from '@/model/post-model';
 
-export const savePostService = async (post: posts, squares: squares[]) => {
+export const savePostService = async (
+  post: posts,
+  squares: squares[],
+  type_posts: number[]
+) => {
   try {
-    console.log(post);
-    const savePost = await savePostRepository(post, squares);
+    const savePost = await savePostRepository(post, squares, type_posts);
     return savePost;
   } catch (error: unknown) {
     throw error;
