@@ -9,7 +9,12 @@ export const createUserRepository = async (user: users) => {
       data: {
         email: user.email,
         password: user.password,
-        name: user.name
+        name: user.name,
+        address: null,
+        facebook: null,
+        instagram: null,
+        telephone: null,
+        whatsapp: null
       }
     });
     return newUser;
@@ -34,8 +39,7 @@ export const getUserByEmailRepository = async (email: string) => {
 export const getUserByIdRepository = async (id: number) => {
   try {
     const user = await prisma.users.findUnique({
-      where: { id },
-      omit: { password: true }
+      where: { id }
     });
     return user;
   } catch (error: unknown) {
@@ -61,7 +65,13 @@ export const updateUserRepository = async (user: users) => {
     const updateUser = await prisma.users.update({
       where: { id: user.id },
       data: {
-        ...user
+        name: user.name,
+        email: user.email,
+        address: user.address,
+        facebook: user.facebook,
+        instagram: user.instagram,
+        whatsapp: user.whatsapp,
+        telephone: user.telephone
       }
     });
     return updateUser;

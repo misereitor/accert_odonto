@@ -2,7 +2,8 @@
 import { users } from '@prisma/client';
 import {
   createUserRepository,
-  getUserByEmailRepository
+  getUserByEmailRepository,
+  updateUserRepository
 } from '../repository/user-repository';
 import { FormCreateUser } from '@/schema/user-schema';
 import * as bcrypt from 'bcrypt';
@@ -29,7 +30,12 @@ export const createUserService = async (userForm: FormCreateUser) => {
     email: userForm.email.toLowerCase(),
     password: hashPassword,
     name: userForm.name,
-    email_confirmed: false
+    email_confirmed: false,
+    address: null,
+    facebook: null,
+    instagram: null,
+    whatsapp: null,
+    telephone: null
   };
   const createUser = await createUserRepository(user);
   createUser.password = '';
@@ -71,6 +77,17 @@ export const getUserByToken = async () => {
     return payload.user as users;
   } catch (error: unknown) {
     console.error('Falha ao decodificar o token', error);
+    throw error;
+  }
+};
+
+export const updateUserService = async (user: users) => {
+  try {
+    const updateUser = await updateUserRepository(user);
+    //await createTokenAdnCookies(updateUser);
+    return updateUser;
+  } catch (error: unknown) {
+    console.error('Erro ao atualizar o usuário', error);
     throw error;
   }
 };

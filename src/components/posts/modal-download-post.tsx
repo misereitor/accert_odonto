@@ -6,14 +6,16 @@ import {
   Select,
   SelectChangeEvent
 } from '@mui/material';
-import { logos } from '@prisma/client';
+import { logos, squares, users } from '@prisma/client';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import {
   generateAndDownloadImage,
   resizeImageByFileUrl,
   scaleRectangleToSmallerImage
 } from '../../../util/resize-image-proportionally';
-import { Posts } from '@/model/post-model';
+import { ContentToInsert, Posts } from '@/model/post-model';
+import { getUserByToken } from '@/service/user-service';
+import { getUserByIdRepository } from '@/repository/user-repository';
 
 type Props = {
   postSelect: Posts | null;
@@ -31,17 +33,30 @@ export default function ModalDownloadPost({ postSelect, logos }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scalePercentage, setScalePercentage] = useState(100);
   const [logoSelections, setLogoSelections] = useState<LogoSelection>({});
+  const [user, setUser] = useState<users | null>(null);
 
   useEffect(() => {
+    const getUser = async () => {
+      const userToken = await getUserByToken();
+      const user = await getUserByIdRepository(userToken.id);
+      setUser(user);
+    };
+    getUser();
+  }, []);
+
+  useEffect(() => {
+    if (!postSelect || !user) return;
+
     const redrawCanvas = () => {
       const canvas = canvasRef.current;
       const ctx = canvas?.getContext('2d');
 
-      if (!canvas || !ctx || !postSelect || !imageRef.current) return;
+      if (!canvas || !ctx || !imageRef.current) return;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(imageRef.current, 0, 0, canvas.width, canvas.height);
 
+      // Redesenha as logos selecionadas
       Object.entries(logoSelections).forEach(([id, selectedLogo]) => {
         if (selectedLogo) {
           const sq = postSelect.squares.find((s) => s.id === Number(id));
@@ -57,11 +72,45 @@ export default function ModalDownloadPost({ postSelect, logos }: Props) {
           }
         }
       });
+
+      // Redesenha as informações de texto
+      postSelect.squares.forEach((sq) => {
+        drawSingleInformations(ctx, sq);
+      });
     };
 
     redrawCanvas();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [logoSelections]);
+  }, [user, postSelect, logoSelections]);
+
+  // useEffect(() => {
+  //   const redrawCanvas = () => {
+  //     const canvas = canvasRef.current;
+  //     const ctx = canvas?.getContext('2d');
+  //     if (!canvas || !ctx || !postSelect || !imageRef.current) return;
+
+  //     ctx.clearRect(0, 0, canvas.width, canvas.height);
+  //     ctx.drawImage(imageRef.current, 0, 0, canvas.width, canvas.height);
+
+  //     Object.entries(logoSelections).forEach(([id, selectedLogo]) => {
+  //       if (selectedLogo) {
+  //         const sq = postSelect.squares.find((s) => s.id === Number(id));
+  //         if (sq) {
+  //           const scaleSq = scaleRectangleToSmallerImage(
+  //             sq.x,
+  //             sq.y,
+  //             sq.width,
+  //             sq.height,
+  //             scalePercentage
+  //           );
+  //           drawSingleLogo(ctx, selectedLogo, scaleSq);
+  //         }
+  //       }
+  //     });
+  //   };
+  //   redrawCanvas();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [logoSelections]);
 
   useEffect(() => {
     const handleFileShowCanva = async () => {
@@ -94,7 +143,6 @@ export default function ModalDownloadPost({ postSelect, logos }: Props) {
 
         imageRef.current = img;
         ctx.drawImage(img, 0, 0, sizeImageResize.width, sizeImageResize.height);
-
         URL.revokeObjectURL(imageUrl);
       };
 
@@ -115,6 +163,54 @@ export default function ModalDownloadPost({ postSelect, logos }: Props) {
       const updatedSelections = { ...prev, [squareId]: selectedLogo };
       return updatedSelections;
     });
+  };
+
+  const drawSingleInformations = (
+    ctx: CanvasRenderingContext2D,
+    sq: squares
+  ) => {
+    if (sq.type !== 1) return;
+    const SquareScale = scaleRectangleToSmallerImage(
+      sq.x,
+      sq.y,
+      sq.width,
+      sq.height,
+      scalePercentage
+    );
+    const text = `
+  ${user?.address ? user.address : 'Rua Exemplo, 123'}
+  ${user?.telephone ? user.telephone : '(11) 99999-9999'}
+  `.trim();
+    if (!text) return;
+    console.log('Texto desenhado:', text);
+
+    const fontSize = Math.max(SquareScale.height * 0.2, 12); // Fonte proporcional ao quadrado, mínimo 12px
+    ctx.font = `${fontSize}px Arial`;
+    ctx.fillStyle = 'red'; // Teste com uma cor visível
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    // Definição de posição
+    const maxWidth = SquareScale.width * 0.9; // Margem para evitar corte
+    const lineHeight = fontSize * 1.2;
+    const words = text.split(' ');
+    let line = '';
+    let y = SquareScale.y + lineHeight / 2;
+
+    for (const word of words) {
+      const testLine = line + word + ' ';
+      const testWidth = ctx.measureText(testLine).width;
+
+      if (testWidth > maxWidth && line !== '') {
+        ctx.fillText(line, SquareScale.x + SquareScale.width / 2, y);
+        line = word + ' ';
+        y += lineHeight;
+      } else {
+        line = testLine;
+      }
+    }
+
+    ctx.fillText(line, SquareScale.x + SquareScale.width / 2, y); // Última linha
   };
 
   const drawSingleLogo = (
@@ -146,17 +242,35 @@ export default function ModalDownloadPost({ postSelect, logos }: Props) {
   };
 
   const handleDownload = async () => {
-    if (!postSelect) return;
+    if (!postSelect || !user) return;
 
-    const contents = Object.entries(logoSelections)
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      .filter(([_, logo]) => logo !== null)
+    const contents: ContentToInsert[] = Object.entries(logoSelections)
+      .filter(([, logo]) => logo !== null)
       .map(([squareId, logo]) => ({
         squareId: Number(squareId),
         type: 'logo' as const,
         content: logo!
       }));
 
+    // Adicionar os quadrados de texto
+    postSelect.squares.forEach((square) => {
+      if (square.type === 1) {
+        const text = `
+          ${user?.address ? user.address : 'Rua Exemplo, 123'}
+          ${user?.telephone ? user.telephone : '(11) 99999-9999'}
+        `.trim();
+
+        if (text) {
+          contents.push({
+            squareId: square.id,
+            type: 'information' as const,
+            content: text
+          });
+        }
+      }
+    });
+
+    // Gerar e baixar a imagem com as logos e o texto
     await generateAndDownloadImage(postSelect, contents);
   };
 

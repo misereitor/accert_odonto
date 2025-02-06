@@ -18,4 +18,15 @@ export const schemaCreateUser = z
     message: 'As senhas não conferem'
   });
 
+export const schemaEditUser = z.object({
+  name: z.string(),
+  email: z.string().email(),
+  address: z.string().nullable(),
+  facebook: z.string().nullable(),
+  instagram: z.string().nullable(),
+  whatsapp: z.string().nullable(),
+  telephone: z.string().nullable()
+});
+
 export type FormCreateUser = z.infer<typeof schemaCreateUser>;
+export type FormEditUser = z.infer<typeof schemaEditUser>;

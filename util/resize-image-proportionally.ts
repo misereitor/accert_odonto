@@ -225,8 +225,9 @@ export async function generateAndDownloadImage(
       // 📝 Inserir INFORMAÇÃO (texto)
       const text = item.content;
 
-      ctx.font = 'bold 16px Arial';
-      ctx.fillStyle = 'black'; // Cor do texto
+      const fontSize = Math.max(square.height * 0.2, 12);
+      ctx.font = `${fontSize}px Arial`;
+      ctx.fillStyle = 'red'; // Cor do texto
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
@@ -234,7 +235,7 @@ export async function generateAndDownloadImage(
       const centerY = square.y + square.height / 2;
 
       // Ajustar o texto para caber no espaço
-      wrapText(ctx, text, centerX, centerY, square.width - 10, 20);
+      wrapText(ctx, text, centerX, centerY, square.width - 10, fontSize * 1.2);
     }
   }
 

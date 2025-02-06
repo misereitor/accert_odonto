@@ -29,7 +29,7 @@ export const savePostRepository = async (
         url: post.url,
         type_posts: {
           create: type_posts.map((tp) => ({
-            type_post: { connect: { id: tp } }
+            type_post: { connect: { id: Number(tp) } }
           }))
         },
         squares: {

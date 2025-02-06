@@ -23,6 +23,11 @@ model users {
   active Boolean @default(true)
   posts posts[]
   logos logos[]
+  address String?
+  facebook String?
+  instagram String?
+  whatsapp String?
+  telephone String?
 }
 
 model logos {

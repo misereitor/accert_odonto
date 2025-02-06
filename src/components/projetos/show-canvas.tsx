@@ -336,7 +336,7 @@ export default function ShowCanvas({
     e: SelectChangeEvent<number>,
     rect: SquaresMeasure
   ) => {
-    const newType = e.target.value as number;
+    const newType = Number(e.target.value);
     setRects((prevRects) =>
       prevRects.map((r) => (r.id === rect.id ? { ...r, type: newType } : r))
     );
