@@ -29,11 +29,7 @@ export default function Panfletos() {
   const take = 20;
   const [spik, setSpik] = useState(0);
 
-  const getCols = () => {
-    if (isMobile) return 2;
-    if (isTablet) return 3;
-    return 4;
-  };
+  const getCols = () => (isMobile ? 2 : isTablet ? 3 : 4);
 
   const fetchPhotos = useCallback(async () => {
     setLoading(true);
@@ -44,9 +40,17 @@ export default function Panfletos() {
       const logosDB = await getAllLogosByUserIdService();
       setLogos(logosDB);
 
-      setPosts((prevPosts) => [...prevPosts, ...newPhotos]);
-      setSpik((prevSpik) => prevSpik + take);
-      setHasMore(newPhotos.length > 0);
+      if (newPhotos.length > 0) {
+        setPosts((prevPosts) => {
+          const uniquePhotos = newPhotos.filter(
+            (newPhoto) => !prevPosts.some((post) => post.id === newPhoto.id)
+          );
+          return [...prevPosts, ...uniquePhotos];
+        });
+        setSpik((prevSpik) => prevSpik + take);
+      } else {
+        setHasMore(false);
+      }
     } catch (error) {
       console.error('Erro ao buscar posts:', error);
     } finally {

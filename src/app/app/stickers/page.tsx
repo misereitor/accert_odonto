@@ -26,11 +26,7 @@ export default function Stickers() {
   const take = 20;
   const [spik, setSpik] = useState(0);
 
-  const getCols = () => {
-    if (isMobile) return 3;
-    if (isTablet) return 4;
-    return 6;
-  };
+  const getCols = () => (isMobile ? 2 : isTablet ? 3 : 4);
 
   const fetchPhotos = useCallback(async () => {
     setLoading(true);
@@ -39,9 +35,17 @@ export default function Stickers() {
         9
       ]);
 
-      setPosts((prevPosts) => [...prevPosts, ...newPhotos]);
-      setSpik((prevSpik) => prevSpik + take);
-      setHasMore(newPhotos.length > 0);
+      if (newPhotos.length > 0) {
+        setPosts((prevPosts) => {
+          const uniquePhotos = newPhotos.filter(
+            (newPhoto) => !prevPosts.some((post) => post.id === newPhoto.id)
+          );
+          return [...prevPosts, ...uniquePhotos];
+        });
+        setSpik((prevSpik) => prevSpik + take);
+      } else {
+        setHasMore(false);
+      }
     } catch (error) {
       console.error('Erro ao buscar posts:', error);
     } finally {

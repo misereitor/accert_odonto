@@ -4,8 +4,6 @@ import ModalModel from '@/components/modal/ModalModel';
 import ListVideoPlay from '@/components/video/list-video';
 import ModalDownloadVideo from '@/components/video/modal-download-video';
 import { Posts } from '@/model/post-model';
-import { updateUrlPostRepository } from '@/repository/post-repository';
-import { generateSignedDownloadUrls } from '@/service/files-service';
 import { getAllPostsByPaginationService } from '@/service/post-service';
 import { Skeleton, useMediaQuery, useTheme } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
@@ -30,30 +28,18 @@ export default function VideosTv() {
       const newPhotos = await getAllPostsByPaginationService(spik, take, 1, [
         6
       ]);
-      const now = new Date();
-      const nowPlusOneDay = new Date(now.getTime() + 60 * 60 * 24000);
 
-      const updatedPhotos = await Promise.all(
-        newPhotos.map(async (post) => {
-          if (!post.url || (post.timestampUrl && post.timestampUrl < now)) {
-            post.url = await generateSignedDownloadUrls(post.path);
-            post.timestampUrl = nowPlusOneDay;
-            await updateUrlPostRepository(post.id, post.url, post.timestampUrl);
-          }
-          return post;
-        })
-      );
-
-      setPosts((prev) => {
-        const existingIds = new Set(prev.map((p) => p.id));
-        const uniquePosts = updatedPhotos.filter(
-          (post) => !existingIds.has(post.id)
-        );
-        return [...prev, ...uniquePosts];
-      });
-
-      setSpik((prevSpik) => prevSpik + take);
-      setHasMore(newPhotos.length > 0);
+      if (newPhotos.length > 0) {
+        setPosts((prevPosts) => {
+          const uniquePhotos = newPhotos.filter(
+            (newPhoto) => !prevPosts.some((post) => post.id === newPhoto.id)
+          );
+          return [...prevPosts, ...uniquePhotos];
+        });
+        setSpik((prevSpik) => prevSpik + take);
+      } else {
+        setHasMore(false);
+      }
     } catch (error) {
       console.error('Erro ao buscar posts:', error);
     } finally {
