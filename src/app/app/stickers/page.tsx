@@ -3,12 +3,7 @@
 import ModalModel from '@/components/modal/ModalModel';
 import { getAllPostsByPaginationService } from '@/service/post-service';
 import { useTheme } from '@mui/material/styles';
-import {
-  ImageList,
-  ImageListItem,
-  Skeleton,
-  useMediaQuery
-} from '@mui/material';
+import { ImageListItem, Skeleton, useMediaQuery } from '@mui/material';
 import Image from 'next/image';
 import { useCallback, useEffect, useState } from 'react';
 import { Posts } from '@/model/post-model';
@@ -74,16 +69,6 @@ export default function Stickers() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [fetchPhotos, loading, hasMore]);
 
-  const getImageDimensions = (width: number, height: number) => {
-    const vertical = width > height;
-    const horizontal = height > width;
-    const squere = width === height;
-
-    if (squere) return { rows: 1, cols: 1 };
-    if (vertical) return { rows: 2, cols: 1 };
-    if (horizontal) return { rows: 1, cols: 2 };
-  };
-
   const handleSelectPost = (post: Posts) => {
     setPostSelect(post);
     setOpenModal(true);
@@ -94,35 +79,34 @@ export default function Stickers() {
       <ModalModel openModal={openModal} setOpenModal={setOpenModal}>
         <ModalDownloadSticker postSelect={postSelect} />
       </ModalModel>
-      <ImageList variant="masonry" cols={getCols()} gap={16}>
+      <div
+        className="p-4 grid gap-4"
+        style={{ gridTemplateColumns: `repeat(${getCols()}, 1fr)` }}
+      >
         {posts.map((photo) => (
-          <ImageListItem
+          <div
             key={photo.id}
-            sx={{
-              cursor: 'pointer',
-              borderRadius: '8px'
-            }}
             onClick={() => handleSelectPost(photo)}
-            {...getImageDimensions(photo.width, photo.height)}
+            className="cursor-pointer"
           >
             {photo.url ? (
               <Image
                 src={photo.url}
                 alt="Gallery item"
                 loading="lazy"
-                width={500}
-                height={500}
+                width={300}
+                height={300}
                 className="rounded-lg"
               />
             ) : (
               <Skeleton
                 variant="rectangular"
                 width="100%"
-                height={200}
+                height={300}
                 sx={{ borderRadius: 2 }}
               />
             )}
-          </ImageListItem>
+          </div>
         ))}
 
         {/* Skeletons durante o carregamento */}
@@ -132,12 +116,12 @@ export default function Stickers() {
               <Skeleton
                 variant="rectangular"
                 width="100%"
-                height={200}
+                height={300}
                 sx={{ borderRadius: 2 }}
               />
             </ImageListItem>
           ))}
-      </ImageList>
+      </div>
     </div>
   );
 }
