@@ -61,9 +61,11 @@ export default function ModalDownloadVideo({ videoSelected }: Props) {
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </div>
-              <div className="md:w-1/3 md:ml-10">
+              <div className="md:w-1/2 md:ml-10">
                 <div>
-                  <h2>{videoSelected.name}</h2>
+                  <h2 className="font-bold text-2xl mb-10">
+                    {videoSelected.name}
+                  </h2>
                 </div>
                 <div>
                   <span>{videoSelected.description}</span>
@@ -86,7 +88,7 @@ export default function ModalDownloadVideo({ videoSelected }: Props) {
                 startIcon={<BiCloudDownload />}
                 variant="contained"
               >
-                Save
+                Salvar
               </Button>
             </div>
           </div>

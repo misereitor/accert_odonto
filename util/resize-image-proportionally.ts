@@ -105,7 +105,11 @@ export async function resizeImageByFile(file: File, width: number) {
   });
 }
 
-export async function resizeImageByFileUrl(url: string, width: number) {
+export async function resizeImageByFileUrl(
+  url: string,
+  maxWidth: number,
+  maxHeight: number
+) {
   return new Promise<{
     imageResize: Blob | null;
     sizeImageResize: {
@@ -119,13 +123,30 @@ export async function resizeImageByFileUrl(url: string, width: number) {
     };
   }>((resolve, reject) => {
     const img = new Image();
-    img.crossOrigin = 'anonymous'; // Importante para evitar problemas de CORS se a imagem estiver em outro domínio
+    img.crossOrigin = 'anonymous';
     img.src = url;
 
     img.onload = () => {
-      // Redimensiona a imagem de acordo com a largura
-      const sizeImageResize = resizeImageByWidth(img.width, img.height, width);
-      const sizeImage = { width: img.width, height: img.height };
+      const originalWidth = img.width;
+      const originalHeight = img.height;
+
+      // Calcula a escala correta sem distorcer a imagem
+      const scale = Math.min(
+        maxWidth / originalWidth,
+        maxHeight / originalHeight,
+        1
+      );
+
+      const newWidth = Math.round(originalWidth * scale);
+      const newHeight = Math.round(originalHeight * scale);
+
+      const sizeImageResize = {
+        width: newWidth,
+        height: newHeight,
+        scalePercentage: scale // Guardamos o fator real da escala
+      };
+
+      const sizeImage = { width: originalWidth, height: originalHeight };
 
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
@@ -135,20 +156,20 @@ export async function resizeImageByFileUrl(url: string, width: number) {
       }
 
       // Define o novo tamanho do canvas
-      canvas.width = sizeImageResize.width;
-      canvas.height = sizeImageResize.height;
+      canvas.width = newWidth;
+      canvas.height = newHeight;
 
       // Desenha a imagem redimensionada no canvas
-      ctx.drawImage(img, 0, 0, sizeImageResize.width, sizeImageResize.height);
+      ctx.drawImage(img, 0, 0, newWidth, newHeight);
 
-      // Converte o canvas para Blob (definindo o tipo de imagem, ex: "image/png")
+      // Converte o canvas para Blob
       canvas.toBlob((blob) => {
         if (blob) {
           resolve({ imageResize: blob, sizeImageResize, sizeImage });
         } else {
           reject(new Error('Erro ao converter a imagem para Blob'));
         }
-      }, 'image/png'); // Altere o tipo de imagem se necessário
+      }, 'image/png');
     };
 
     img.onerror = () => reject(new Error('Erro ao carregar a imagem'));

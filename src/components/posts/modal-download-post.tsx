@@ -83,44 +83,20 @@ export default function ModalDownloadPost({ postSelect, logos }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, postSelect, logoSelections]);
 
-  // useEffect(() => {
-  //   const redrawCanvas = () => {
-  //     const canvas = canvasRef.current;
-  //     const ctx = canvas?.getContext('2d');
-  //     if (!canvas || !ctx || !postSelect || !imageRef.current) return;
-
-  //     ctx.clearRect(0, 0, canvas.width, canvas.height);
-  //     ctx.drawImage(imageRef.current, 0, 0, canvas.width, canvas.height);
-
-  //     Object.entries(logoSelections).forEach(([id, selectedLogo]) => {
-  //       if (selectedLogo) {
-  //         const sq = postSelect.squares.find((s) => s.id === Number(id));
-  //         if (sq) {
-  //           const scaleSq = scaleRectangleToSmallerImage(
-  //             sq.x,
-  //             sq.y,
-  //             sq.width,
-  //             sq.height,
-  //             scalePercentage
-  //           );
-  //           drawSingleLogo(ctx, selectedLogo, scaleSq);
-  //         }
-  //       }
-  //     });
-  //   };
-  //   redrawCanvas();
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [logoSelections]);
-
   useEffect(() => {
     const handleFileShowCanva = async () => {
       if (!postSelect || !postSelect.url) return;
       if (!containerRef.current) return;
 
       const containerWidth = containerRef.current.offsetWidth;
+      const containerHeight = containerRef.current.offsetHeight;
 
       const { imageResize, sizeImageResize, sizeImage } =
-        await resizeImageByFileUrl(postSelect.url, containerWidth);
+        await resizeImageByFileUrl(
+          postSelect.url,
+          containerWidth,
+          containerHeight
+        );
 
       if (!imageResize || !sizeImageResize || !sizeImage) return;
 
@@ -275,12 +251,33 @@ export default function ModalDownloadPost({ postSelect, logos }: Props) {
   };
 
   return (
-    <div className="w-[700px] max-h-[700px] overflow-auto">
-      <div ref={containerRef}>
-        <canvas ref={canvasRef} />
+    <div className="p-4">
+      <div>
+        {postSelect && (
+          <div className="w-full md:h-[50vh] md:w-[47vw]">
+            <div className="md:flex w-full h-full">
+              <div
+                ref={containerRef}
+                className="h-full w-full flex justify-center"
+              >
+                <canvas ref={canvasRef} />
+              </div>
+              <div className="md:w-1/2 md:ml-10">
+                <div>
+                  <h2 className="font-bold text-2xl mb-10">
+                    {postSelect.name}
+                  </h2>
+                </div>
+                <div>
+                  <span>{postSelect.description}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="mt-10">
+      <div className="mt-10 ">
         {postSelect?.squares
           .filter((square) => square.type == 0) // Somente quadrados do tipo logo
           .map((square) => (
