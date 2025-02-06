@@ -32,15 +32,17 @@ model logos {
   path String
   name_unique String
   name String
-  url String?
-  timestampUrl DateTime?
+  width Int
+  height Int
+  url String
+  timestampUrl DateTime
 }
 
 model posts {
   id Int @id @default(autoincrement())
   path String
-  url String?
-  timestampUrl DateTime?
+  url String
+  timestampUrl DateTime
   name_unique String
   name String
   size Int
@@ -51,15 +53,23 @@ model posts {
   height Int
   type_post type_post @relation(fields: [type_post_id], references: [id])
   type_post_id Int
-  type_media Int //0 - img, 1 - video
+  type_media Int //0 - img, 1 - video, 2 - figurinhas, 3 - gifs
   accept_logo Boolean
-  square_x Int @default(0)
-  square_y Int @default(0)
-  square_width Int @default(0)
-  square_height Int @default(0)
+  accept_information Boolean
   user_id Int
   user users @relation(fields: [user_id], references: [id])
+  squares squares[]
+}
 
+model squares {
+  id Int @id @default(autoincrement())
+  posts_id Int
+  posts posts @relation(fields: [posts_id], references: [id])
+  type Int //0 - logo, 1 - information
+  x Int @default(0)
+  y Int @default(0)
+  width Int @default(0)
+  height Int @default(0)
 }
 
 model type_post {

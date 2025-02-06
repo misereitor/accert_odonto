@@ -1,4 +1,5 @@
-import { logos, posts } from '@prisma/client';
+import { ContentToInsert, Posts, SquaresMeasure } from '@/model/post-model';
+import { squares } from '@prisma/client';
 
 export function resizeImageByWidth(
   originalWidth: number,
@@ -15,19 +16,17 @@ export function resizeImageByWidth(
   };
 }
 
-export function scaleRectangleByPercentage(
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  scalePercentage: number
-) {
-  return {
-    x: Math.round(x / scalePercentage),
-    y: Math.round(y / scalePercentage),
-    width: Math.round(width / scalePercentage),
-    height: Math.round(height / scalePercentage)
-  };
+export function scaleRectangleByPercentage(squaresMeasure: SquaresMeasure[]) {
+  const squares = squaresMeasure.map((measure) => {
+    return {
+      x: Math.round(measure.x / measure.scalePercentage),
+      y: Math.round(measure.y / measure.scalePercentage),
+      width: Math.round(measure.width / measure.scalePercentage),
+      height: Math.round(measure.height / measure.scalePercentage),
+      type: measure.type
+    };
+  });
+  return squares as unknown as squares[];
 }
 
 export function scaleRectangleToSmallerImage(
@@ -157,8 +156,8 @@ export async function resizeImageByFileUrl(url: string, width: number) {
 }
 
 export async function generateAndDownloadImage(
-  post: posts,
-  logo: logos | null
+  post: Posts,
+  contents: ContentToInsert[]
 ) {
   // 1️⃣ Carregar imagem do post
   if (!post.url) return;
@@ -177,44 +176,65 @@ export async function generateAndDownloadImage(
   ctx.drawImage(postImage, 0, 0);
 
   // 4️⃣ Carregar e desenhar logo
-  if (logo && logo.url) {
-    const logoImage = await loadImage(logo.url);
-    if (logoImage) {
-      const { width: logoWidth, height: logoHeight } = logoImage;
-      const aspectRatio = logoWidth / logoHeight;
+  for (const item of contents) {
+    const square = post.squares.find((sq) => sq.id === item.squareId);
+    if (!square) continue; // Pular se o quadrado não existir
 
-      let finalLogoWidth = post.square_width;
-      let finalLogoHeight = post.square_height;
+    if (item.type === 'logo' && typeof item.content !== 'string') {
+      // 📦 Inserir LOGO
+      const logo = item.content;
+      const logoImage = await loadImage(logo.url);
+      if (logoImage) {
+        const aspectRatio = logoImage.width / logoImage.height;
 
-      if (logoWidth > logoHeight) {
-        // Se for mais larga que alta, escala pela largura
-        finalLogoHeight = post.square_width / aspectRatio;
-        if (finalLogoHeight > post.square_height) {
-          finalLogoHeight = post.square_height;
-          finalLogoWidth = finalLogoHeight * aspectRatio;
+        let finalLogoWidth = square.width;
+        let finalLogoHeight = square.height;
+
+        // Ajuste de proporção
+        if (logoImage.width > logoImage.height) {
+          finalLogoHeight = square.width / aspectRatio;
+          if (finalLogoHeight > square.height) {
+            finalLogoHeight = square.height;
+            finalLogoWidth = finalLogoHeight * aspectRatio;
+          }
+        } else {
+          finalLogoWidth = square.height * aspectRatio;
+          if (finalLogoWidth > square.width) {
+            finalLogoWidth = square.width;
+            finalLogoHeight = finalLogoWidth / aspectRatio;
+          }
         }
-      } else {
-        // Se for mais alta que larga, escala pela altura
-        finalLogoWidth = post.square_height * aspectRatio;
-        if (finalLogoWidth > post.square_width) {
-          finalLogoWidth = post.square_width;
-          finalLogoHeight = finalLogoWidth / aspectRatio;
-        }
+
+        // Centralizar dentro do quadrado
+        const offsetX = square.x + (square.width - finalLogoWidth) / 2;
+        const offsetY = square.y + (square.height - finalLogoHeight) / 2;
+
+        // Desenhar logo
+        ctx.drawImage(
+          logoImage,
+          offsetX,
+          offsetY,
+          finalLogoWidth,
+          finalLogoHeight
+        );
       }
+    } else if (
+      item.type === 'information' &&
+      typeof item.content === 'string'
+    ) {
+      // 📝 Inserir INFORMAÇÃO (texto)
+      const text = item.content;
 
-      // 6️⃣ Centralizar a logo dentro da área permitida (opcional)
-      const offsetX = post.square_x + (post.square_width - finalLogoWidth) / 2;
-      const offsetY =
-        post.square_y + (post.square_height - finalLogoHeight) / 2;
+      ctx.font = 'bold 16px Arial';
+      ctx.fillStyle = 'black'; // Cor do texto
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
 
-      // 7️⃣ Desenhar a logo no canvas
-      ctx.drawImage(
-        logoImage,
-        offsetX,
-        offsetY,
-        finalLogoWidth,
-        finalLogoHeight
-      );
+      const centerX = square.x + square.width / 2;
+      const centerY = square.y + square.height / 2;
+
+      // Ajustar o texto para caber no espaço
+      wrapText(ctx, text, centerX, centerY, square.width - 10, 20);
     }
   }
 
@@ -237,4 +257,32 @@ function loadImage(url: string): Promise<HTMLImageElement | null> {
       resolve(null);
     };
   });
+}
+
+function wrapText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  lineHeight: number
+) {
+  const words = text.split(' ');
+  let line = '';
+  let currentY = y;
+
+  for (let n = 0; n < words.length; n++) {
+    const testLine = line + words[n] + ' ';
+    const metrics = ctx.measureText(testLine);
+    const testWidth = metrics.width;
+
+    if (testWidth > maxWidth && n > 0) {
+      ctx.fillText(line, x, currentY);
+      line = words[n] + ' ';
+      currentY += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  ctx.fillText(line, x, currentY);
 }

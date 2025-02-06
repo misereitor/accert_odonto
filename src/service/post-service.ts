@@ -5,22 +5,27 @@ import {
   savePostRepository,
   updateUrlPostRepository
 } from '@/repository/post-repository';
-import { posts } from '@prisma/client';
+import { posts, squares } from '@prisma/client';
 import { getUserByToken } from './user-service';
 import { generateSignedDownloadUrls } from './files-service';
+import { Posts } from '@/model/post-model';
 
-export const savePostService = async (post: posts) => {
+export const savePostService = async (post: posts, squares: squares[]) => {
   try {
-    const savePost = await savePostRepository(post);
+    console.log(post);
+    const savePost = await savePostRepository(post, squares);
     return savePost;
   } catch (error: unknown) {
     throw error;
   }
 };
 
-export const getAllPostsByDesignService = async () => {
+export const getAllPostsByDesignService = async (
+  skip: number,
+  take: number
+) => {
   const user = await getUserByToken();
-  const posts = await getAllPostsByDesignRepository(user.id);
+  const posts = await getAllPostsByDesignRepository(user.id, skip, take);
   return posts;
 };
 
@@ -30,9 +35,6 @@ export const getAllPostsByPaginationService = async (
   type_media: number,
   type_post_ids: number[]
 ) => {
-  const now = new Date();
-  const nowPlusOneDay = new Date(now.getTime() + 60 * 60 * 24000);
-
   const posts = await getAllPostsByPaginationRepository(
     skip,
     take,
@@ -40,9 +42,17 @@ export const getAllPostsByPaginationService = async (
     type_post_ids
   );
 
+  const updatedPhotos = await updateUrlPhotoService(posts);
+
+  return updatedPhotos;
+};
+
+const updateUrlPhotoService = async (posts: Posts[]) => {
+  const now = new Date();
+  const nowPlusOneDay = new Date(now.getTime() + 60 * 60 * 24000);
   const updatedPhotos = await Promise.all(
     posts.map(async (post) => {
-      if (!post.url || (post.timestampUrl && post.timestampUrl < now)) {
+      if (post.timestampUrl && post.timestampUrl < now) {
         post.url = await generateSignedDownloadUrls(post.path);
         post.timestampUrl = nowPlusOneDay;
         await updateUrlPostRepository(post.id, post.url, post.timestampUrl);
@@ -50,6 +60,5 @@ export const getAllPostsByPaginationService = async (
       return post;
     })
   );
-
   return updatedPhotos;
 };

@@ -3,14 +3,15 @@
 import ModalModel from '@/components/modal/ModalModel';
 import ListVideoPlay from '@/components/video/list-video';
 import ModalDownloadVideo from '@/components/video/modal-download-video';
+import { Posts } from '@/model/post-model';
 import { getAllPostsByPaginationService } from '@/service/post-service';
 import { Skeleton, useMediaQuery, useTheme } from '@mui/material';
 import { posts } from '@prisma/client';
 import { useCallback, useEffect, useState } from 'react';
 
 export default function Reels() {
-  const [posts, setPosts] = useState<posts[]>([]);
-  const [videoSelected, setVideoSelected] = useState<posts | null>(null);
+  const [posts, setPosts] = useState<Posts[]>([]);
+  const [videoSelected, setVideoSelected] = useState<Posts | null>(null);
   const [openModal, setOpenModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
@@ -81,7 +82,7 @@ export default function Reels() {
     return [...portrait, ...square, ...landscape];
   };
 
-  const handleSelectPost = (post: posts) => {
+  const handleSelectPost = (post: Posts) => {
     setVideoSelected(post);
     setOpenModal(true);
   };

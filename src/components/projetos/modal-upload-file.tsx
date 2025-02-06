@@ -4,6 +4,7 @@ import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import ShowCanvas from './show-canvas';
 import RegisterImage from './register-image';
 import ShowVideo from './show-video';
+import { SquaresMeasure } from '@/model/post-model';
 
 type Props = {
   file: File | undefined;
@@ -15,32 +16,25 @@ export default function ModalUploadFile({ file, setOpenModal }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [scalePercentage, setScalePercentage] = useState(100);
   const [sizeImage, setSizeImage] = useState<{
     width: number;
     height: number;
   } | null>(null);
-  const [rect, setRect] = useState<{
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  } | null>(null);
+  const [rects, setRects] = useState<SquaresMeasure[]>([]);
 
   const mediaType = file?.type.split('/')[0] === 'image' ? true : false;
 
   return (
-    <div>
+    <div className="overflow-y-auto overflow-x-hidden">
       {stage == 0 && (
         <div>
           {mediaType ? (
             <ShowCanvas
-              setScalePercentage={setScalePercentage}
+              rects={rects}
+              setRects={setRects}
               file={file}
               setSizeImage={setSizeImage}
-              rect={rect}
               setStage={setStage}
-              setRect={setRect}
               imageRef={imageRef}
               canvasRef={canvasRef}
               containerRef={containerRef}
@@ -56,12 +50,11 @@ export default function ModalUploadFile({ file, setOpenModal }: Props) {
       )}
       {stage == 1 && (
         <RegisterImage
-          setOpenModal={setOpenModal}
-          file={file}
           sizeImage={sizeImage}
-          scalePercentage={scalePercentage}
-          rect={rect}
+          rects={rects}
+          file={file}
           setStage={setStage}
+          setOpenModal={setOpenModal}
         />
       )}
     </div>

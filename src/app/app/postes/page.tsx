@@ -11,13 +11,14 @@ import {
   Skeleton,
   useMediaQuery
 } from '@mui/material';
-import { logos, posts } from '@prisma/client';
+import { logos } from '@prisma/client';
 import Image from 'next/image';
 import { useCallback, useEffect, useState } from 'react';
+import { Posts } from '@/model/post-model';
 
 export default function Postes() {
-  const [posts, setPosts] = useState<posts[]>([]);
-  const [postSelect, setPostSelect] = useState<posts | null>(null);
+  const [posts, setPosts] = useState<Posts[]>([]);
+  const [postSelect, setPostSelect] = useState<Posts | null>(null);
   const [openModal, setOpenModal] = useState(false);
   const [logos, setLogos] = useState<logos[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,7 +88,7 @@ export default function Postes() {
     if (horizontal) return { rows: 1, cols: 2 };
   };
 
-  const handleSelectPost = (post: posts) => {
+  const handleSelectPost = (post: Posts) => {
     setPostSelect(post);
     setOpenModal(true);
   };

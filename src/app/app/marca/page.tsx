@@ -1,7 +1,13 @@
 'use client';
 
 import { getAllLogosByUserIdService } from '@/service/logo-service';
-import { Button, styled } from '@mui/material';
+import {
+  Button,
+  Skeleton,
+  styled,
+  useMediaQuery,
+  useTheme
+} from '@mui/material';
 import { logos } from '@prisma/client';
 import { useEffect, useState } from 'react';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -25,12 +31,18 @@ export default function Marca() {
   const [logos, setLogos] = useState<logos[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const [file, setFile] = useState<File | undefined>();
+  const theme = useTheme();
+  const [loading, setLoading] = useState(true);
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const getCols = () => (isMobile ? 2 : isTablet ? 3 : 4);
 
   useEffect(() => {
     const getAllLogos = async () => {
       const logosUser = await getAllLogosByUserIdService();
       console.log(logosUser);
       setLogos(logosUser);
+      setLoading(false);
     };
     getAllLogos();
   }, []);
@@ -44,6 +56,27 @@ export default function Marca() {
     }
     event.target.value = '';
   };
+
+  const organizedPosts = () => {
+    const portrait = logos.filter(
+      (logo) => classifyOrientation(logo) === 'portrait'
+    );
+    const landscape = logos.filter(
+      (logo) => classifyOrientation(logo) === 'landscape'
+    );
+    const square = logos.filter(
+      (logo) => classifyOrientation(logo) === 'square'
+    );
+
+    return [...portrait, ...square, ...landscape];
+  };
+
+  const classifyOrientation = (logo: logos) => {
+    const { width, height } = logo;
+    if (width === height) return 'square';
+    return width > height ? 'landscape' : 'portrait';
+  };
+
   return (
     <div>
       <div>
@@ -70,10 +103,24 @@ export default function Marca() {
           </Button>
         </div>
       </div>
-      <div className="flex items-center justify-start mt-5 flex-wrap">
-        {logos.map((logo) => (
-          <div key={logo.id} className="w-1/4">
-            <div className="bg-[var(--border)] p-2 rounded-md m-2">
+      <div
+        className="p-4 grid gap-4"
+        style={{ gridTemplateColumns: `repeat(${getCols()}, 1fr)` }}
+      >
+        {organizedPosts().map((logo) => (
+          <div
+            key={logo.id}
+            className="cursor-pointer rounded-lg overflow-hidden relative"
+            style={{
+              gridRowEnd:
+                classifyOrientation(logo) === 'landscape'
+                  ? 'span 1'
+                  : classifyOrientation(logo) === 'portrait'
+                    ? 'span 3'
+                    : 'span 1'
+            }}
+          >
+            <div className="bg-[var(--border)] p-2 rounded-md m-2 flex flex-col items-center justify-center">
               {logo.url ? (
                 <Image
                   src={logo.url}
@@ -92,6 +139,15 @@ export default function Marca() {
             </div>
           </div>
         ))}
+        {loading &&
+          Array.from(new Array(getCols() * 2)).map((_, index) => (
+            <Skeleton
+              key={index}
+              variant="rectangular"
+              width="100%"
+              height={200}
+            />
+          ))}
       </div>
     </div>
   );

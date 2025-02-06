@@ -3,16 +3,16 @@
 import ModalModel from '@/components/modal/ModalModel';
 import ListVideoPlay from '@/components/video/list-video';
 import ModalDownloadVideo from '@/components/video/modal-download-video';
+import { Posts } from '@/model/post-model';
 import { updateUrlPostRepository } from '@/repository/post-repository';
 import { generateSignedDownloadUrls } from '@/service/files-service';
 import { getAllPostsByPaginationService } from '@/service/post-service';
 import { Skeleton, useMediaQuery, useTheme } from '@mui/material';
-import { posts } from '@prisma/client';
 import { useCallback, useEffect, useState } from 'react';
 
 export default function VideosTv() {
-  const [posts, setPosts] = useState<posts[]>([]);
-  const [videoSelected, setVideoSelected] = useState<posts | null>(null);
+  const [posts, setPosts] = useState<Posts[]>([]);
+  const [videoSelected, setVideoSelected] = useState<Posts | null>(null);
   const [openModal, setOpenModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
@@ -82,7 +82,7 @@ export default function VideosTv() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [fetchPhotos, loading, hasMore]);
 
-  const classifyOrientation = (post: posts) => {
+  const classifyOrientation = (post: Posts) => {
     const { width, height } = post;
     if (width === height) return 'square';
     return width > height ? 'landscape' : 'portrait';
@@ -102,7 +102,7 @@ export default function VideosTv() {
     return [...portrait, ...square, ...landscape];
   };
 
-  const handleSelectPost = (post: posts) => {
+  const handleSelectPost = (post: Posts) => {
     setVideoSelected(post);
     setOpenModal(true);
   };

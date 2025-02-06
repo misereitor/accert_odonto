@@ -26,18 +26,13 @@ import { getUserByToken } from '@/service/user-service';
 import axios, { AxiosProgressEvent } from 'axios';
 import { savePostService } from '@/service/post-service';
 import { getAllTypePostsRepository } from '@/repository/post-repository';
+import { SquaresMeasure } from '@/model/post-model';
 
 type Props = {
   setStage: Dispatch<SetStateAction<number>>;
   file: File | undefined;
   setOpenModal: Dispatch<SetStateAction<boolean>>;
-  scalePercentage: number;
-  rect: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  } | null;
+  rects: SquaresMeasure[];
   sizeImage: {
     width: number;
     height: number;
@@ -46,8 +41,7 @@ type Props = {
 
 export default function RegisterImage({
   setStage,
-  rect,
-  scalePercentage,
+  rects,
   sizeImage,
   file,
   setOpenModal
@@ -105,21 +99,9 @@ export default function RegisterImage({
     handleSetFilter();
     setErrorFilter('');
     setFilter('');
-    let squereSize: {
-      x: number;
-      y: number;
-      width: number;
-      height: number;
-    } | null = null;
-    if (rect) {
-      squereSize = scaleRectangleByPercentage(
-        rect.x,
-        rect.y,
-        rect.width,
-        rect.height,
-        scalePercentage
-      );
-    }
+
+    const squereSize = scaleRectangleByPercentage(rects);
+
     try {
       setIsUpload(true);
       const urlOracle = await generateSignedUrl(
@@ -146,15 +128,12 @@ export default function RegisterImage({
           height: sizeImage?.height || 0,
           type_media: typeMedia,
           type_post_id: typePost === '' ? 0 : Number(typePost),
-          square_x: squereSize?.x || 0,
-          square_y: squereSize?.y || 0,
-          square_width: squereSize?.width || 0,
-          square_height: squereSize?.height || 0,
-          accept_logo: !!rect,
+          accept_logo: rects.length > 0,
           url: await generateSignedDownloadUrls(urlOracle.filePath.path),
-          timestampUrl: nowPlusOneDay
+          timestampUrl: nowPlusOneDay,
+          accept_information: rects.length > 0
         };
-        await savePostService(post);
+        await savePostService(post, squereSize);
         setOpenModal(false);
       }
     } catch (error: unknown) {
@@ -182,7 +161,7 @@ export default function RegisterImage({
   };
 
   return (
-    <div>
+    <div className="w-[500px]">
       <form onSubmit={handleSubmit}>
         <div className="flex justify-between my-2">
           <Button
@@ -230,14 +209,13 @@ export default function RegisterImage({
           >
             Obrigatório
           </FormHelperText>
-          <TextField
+          <textarea
+            className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition duration-100 hover:border-gray-900 "
             required
+            rows={5}
             id="outlined-basic"
-            label="Descrição"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            variant="outlined"
-            type="text"
           />
           <FormHelperText
             sx={{

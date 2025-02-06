@@ -7,6 +7,8 @@ export const createLogoReporitory = async (logo: logos) => {
   try {
     const createLogo = await prisma.logos.create({
       data: {
+        width: logo.width,
+        height: logo.height,
         user_id: logo.user_id,
         name: logo.name,
         name_unique: logo.name_unique,

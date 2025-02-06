@@ -1,8 +1,8 @@
-import { posts } from '@prisma/client';
+import { Posts } from '@/model/post-model';
 import { useRef, useState } from 'react';
 
 type Props = {
-  video: posts;
+  video: Posts;
 };
 
 export default function ListVideoPlay({ video }: Props) {

@@ -1,12 +1,12 @@
+import { Posts } from '@/model/post-model';
 import { Button, LinearProgress } from '@mui/material';
-import { posts } from '@prisma/client';
 import axios, { AxiosProgressEvent } from 'axios';
 import { Dispatch, SetStateAction, useState } from 'react';
 import { BiCloudDownload } from 'react-icons/bi';
 
 type Props = {
-  videoSelected: posts | null;
-  setVideoSelected: Dispatch<SetStateAction<posts | null>>;
+  videoSelected: Posts | null;
+  setVideoSelected: Dispatch<SetStateAction<Posts | null>>;
 };
 
 export default function ModalDownloadVideo({ videoSelected }: Props) {
@@ -51,13 +51,25 @@ export default function ModalDownloadVideo({ videoSelected }: Props) {
     <div className="p-4">
       <div>
         {videoSelected && videoSelected.url && (
-          <div>
-            <video
-              className="max-w-[500px] max-h-[500px]"
-              src={videoSelected.url}
-              controls
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
+          <div className="w-full flex flex-col md:h-[80vh] md:w-[47vw]">
+            <div className="md:flex justify-center">
+              <div>
+                <video
+                  className="md:w-1/2 md:max-h-[70vh] rounded-xl"
+                  src={videoSelected.url}
+                  controls
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              </div>
+              <div className="md:w-1/3 md:ml-10">
+                <div>
+                  <h2>{videoSelected.name}</h2>
+                </div>
+                <div>
+                  <span>{videoSelected.description}</span>
+                </div>
+              </div>
+            </div>
             <div className="mt-5">
               <div className="my-4">
                 {loading && (

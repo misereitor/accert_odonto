@@ -1,9 +1,10 @@
 'use server';
-import { posts, PrismaClient } from '@prisma/client';
+import { Posts } from '@/model/post-model';
+import { posts, PrismaClient, squares } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export const savePostRepository = async (post: posts) => {
+export const savePostRepository = async (post: posts, squares: squares[]) => {
   try {
     const savePost = await prisma.posts.create({
       data: {
@@ -19,27 +20,47 @@ export const savePostRepository = async (post: posts) => {
         type_media: post.type_media,
         type_post_id: post.type_post_id,
         width: post.width,
+        accept_information: post.accept_information,
         accept_logo: post.accept_logo,
-        square_height: post.square_height,
-        square_width: post.square_width,
-        square_x: post.square_x,
-        square_y: post.square_y,
         timestampUrl: post.timestampUrl,
-        url: post.url
+        url: post.url,
+        squares: {
+          create: squares.map((sq) => ({
+            type: sq.type,
+            x: sq.x,
+            y: sq.y,
+            width: sq.width,
+            height: sq.height
+          }))
+        }
+      },
+      include: {
+        type_post: true,
+        squares: true
       }
     });
-    return savePost;
+    return savePost as unknown as Posts;
   } catch (error: unknown) {
     throw error;
   }
 };
 
-export const getAllPostsByDesignRepository = async (userId: number) => {
+export const getAllPostsByDesignRepository = async (
+  userId: number,
+  skip: number,
+  take: number
+) => {
   try {
     const posts = await prisma.posts.findMany({
-      where: { user_id: userId }
+      where: { user_id: userId },
+      take,
+      skip,
+      include: {
+        type_post: true,
+        squares: true
+      }
     });
-    return posts;
+    return posts as unknown as Posts[];
   } catch (error: unknown) {
     throw error;
   }
@@ -58,14 +79,15 @@ export const getAllPostsByPaginationRepository = async (
       where: {
         type_media,
         type_post_id: {
-          in: type_post_ids // Filtra por vários type_post_ids
+          in: type_post_ids
         }
       },
       include: {
-        type_post: true // Inclui o objeto relacionado
+        type_post: true,
+        squares: true
       }
     });
-    return posts;
+    return posts as unknown as Posts[];
   } catch (error: unknown) {
     throw error;
   }
