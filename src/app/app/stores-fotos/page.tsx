@@ -44,7 +44,7 @@ export default function StoreFotos() {
       const logosDB = await getAllLogosByUserIdService();
       setLogos(logosDB);
 
-      setPosts(newPhotos);
+      setPosts((prevPosts) => [...prevPosts, ...newPhotos]);
       setSpik((prevSpik) => prevSpik + take);
       setHasMore(newPhotos.length > 0);
     } catch (error) {
@@ -115,15 +115,15 @@ export default function StoreFotos() {
                 src={photo.url}
                 alt="Gallery item"
                 loading="lazy"
-                width={500}
-                height={500}
+                width={300}
+                height={529}
                 className="rounded-lg"
               />
             ) : (
               <Skeleton
                 variant="rectangular"
                 width="100%"
-                height={200}
+                height={529}
                 sx={{ borderRadius: 2 }}
               />
             )}
@@ -137,7 +137,7 @@ export default function StoreFotos() {
               <Skeleton
                 variant="rectangular"
                 width="100%"
-                height={200}
+                height={529}
                 sx={{ borderRadius: 2 }}
               />
             </ImageListItem>

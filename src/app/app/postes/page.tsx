@@ -47,7 +47,7 @@ export default function Postes() {
       const logosDB = await getAllLogosByUserIdService();
       setLogos(logosDB);
 
-      setPosts(newPhotos);
+      setPosts((prevPosts) => [...prevPosts, ...newPhotos]);
       setSpik((prevSpik) => prevSpik + take);
       setHasMore(newPhotos.length > 0);
     } catch (error) {

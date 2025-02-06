@@ -30,7 +30,7 @@ export default function Reels() {
         8
       ]);
 
-      setPosts(newPhotos);
+      setPosts((prevPosts) => [...prevPosts, ...newPhotos]);
 
       setSpik((prevSpik) => prevSpik + take);
       setHasMore(newPhotos.length > 0);

@@ -275,7 +275,7 @@ export default function ModalDownloadPost({ postSelect, logos }: Props) {
   };
 
   return (
-    <div className="w-[700px]">
+    <div className="w-[700px] max-h-[700px] overflow-auto">
       <div ref={containerRef}>
         <canvas ref={canvasRef} />
       </div>

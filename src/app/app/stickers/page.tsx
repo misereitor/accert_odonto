@@ -39,7 +39,7 @@ export default function Stickers() {
         9
       ]);
 
-      setPosts(newPhotos);
+      setPosts((prevPosts) => [...prevPosts, ...newPhotos]);
       setSpik((prevSpik) => prevSpik + take);
       setHasMore(newPhotos.length > 0);
     } catch (error) {
