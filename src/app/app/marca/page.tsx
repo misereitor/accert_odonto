@@ -40,7 +40,6 @@ export default function Marca() {
   useEffect(() => {
     const getAllLogos = async () => {
       const logosUser = await getAllLogosByUserIdService();
-      console.log(logosUser);
       setLogos(logosUser);
       setLoading(false);
     };

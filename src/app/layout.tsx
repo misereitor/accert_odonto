@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Accert Odonto',
-  description: 'Programa para artes de odontologia'
+  title: 'IN Marketing em Medicina Dentária',
+  description: 'IN Marketing em Medicina Dentária'
 };
 
 export default function RootLayout({

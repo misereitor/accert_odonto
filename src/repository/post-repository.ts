@@ -10,7 +10,6 @@ export const savePostRepository = async (
   type_posts: number[]
 ) => {
   try {
-    console.log(post, squares, type_posts);
     const savePost = await prisma.posts.create({
       data: {
         filter: post.filter,

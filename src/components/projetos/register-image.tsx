@@ -52,6 +52,7 @@ export default function RegisterImage({
 }: Props) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [errorType, setErrorType] = useState('');
   const [filter, setFilter] = useState('');
   const [filterArray, setFilterArray] = useState<string[]>([]);
   const [errorFilter, setErrorFilter] = useState('');
@@ -97,6 +98,10 @@ export default function RegisterImage({
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (typePosts.length === 0) {
+      setErrorType('Adicione o tipo!');
+      return;
+    }
     const user = await getUserByToken();
     const now = new Date();
     const nowPlusOneDay = new Date(now.getTime() + 60 * 60 * 24000);
@@ -252,6 +257,7 @@ export default function RegisterImage({
               <InputLabel id="Type-post">Tipo</InputLabel>
               <Select
                 multiple
+                error={errorType != ''}
                 labelId="Type-post"
                 id="Type-post-required"
                 input={<OutlinedInput label="Tipo" />}
